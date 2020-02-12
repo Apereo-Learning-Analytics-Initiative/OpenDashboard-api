@@ -1,10 +1,12 @@
-OpenDashboard
+OpenDashboard-api
 ============================
 A web application that provides a framework for displaying visualizations and data views called "cards". Cards represent a single discrete visualization or data view but share an API and data model.
 
 *************************************************************************************
 
 ## New version as of February 12th, 2020
+https://github.com/Apereo-Learning-Analytics-Initiative/OpenDashboard is no longer supported
+https://github.com/Apereo-Learning-Analytics-Initiative/OpenDashboard-api is currently supported
 Until now, the Dashboard served up both the UX and the Api's required to display the data. 
 In keeping with a true Service Oriented Architecture, the two applications are now separate and exist in two repositories. The source code in This repository will not display anything. It is responsible for security, and serving the appropriate UX.
 
