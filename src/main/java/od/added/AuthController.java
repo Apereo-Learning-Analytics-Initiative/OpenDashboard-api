@@ -145,6 +145,8 @@ public class AuthController {
 		final String jwtToken = jwtTokenUtil.generateToken(claims);
 
 		Cookie cookie = new Cookie("securityToken", jwtToken);
+		
+		//fixe cookie
 	    cookie.setDomain(baseDomain);
 		
 		response.addCookie(cookie);
