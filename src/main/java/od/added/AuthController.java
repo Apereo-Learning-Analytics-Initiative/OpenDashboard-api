@@ -90,6 +90,9 @@ public class AuthController {
 	  
 	@Value("${od.admin.password:admin}")
 	private String adminPassword;
+	
+	  @Value("${opendashboard.basedomain}")
+	  private String baseDomain;
 
 	@CrossOrigin
 	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
@@ -142,7 +145,8 @@ public class AuthController {
 		final String jwtToken = jwtTokenUtil.generateToken(claims);
 
 		Cookie cookie = new Cookie("securityToken", jwtToken);
-
+	    cookie.setDomain(baseDomain);
+		
 		response.addCookie(cookie);
 		return "OK";
 	}
