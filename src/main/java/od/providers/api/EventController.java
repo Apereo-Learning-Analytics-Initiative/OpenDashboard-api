@@ -109,7 +109,7 @@ public class EventController {
 		EventProvider eventProvider = providerService.getEventProvider(mongoTenantRepository.findOne(tenantId));
 		
 		Page<Event> p = eventProvider.getEventsForCourseAndUser(tenantId, scrubbedClassId, scrubbedUserId,
-				new PageRequest(0, 10000));
+				new PageRequest(0, 100000));
 		return p.getContent();
 	}
 

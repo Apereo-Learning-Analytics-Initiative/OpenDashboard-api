@@ -6,6 +6,8 @@ package od.providers.events;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -13,16 +15,19 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import od.exception.MethodNotImplementedException;
+import od.framework.model.EventAlias;
 import od.framework.model.Tenant;
 import od.providers.ProviderData;
 import od.providers.ProviderException;
 import od.providers.matthews.MatthewsClient;
 import od.providers.matthews.MatthewsProvider;
+import od.repository.mongo.MongoEventAliasRepository;
 import od.repository.mongo.MongoTenantRepository;
 
 import org.apereo.lai.Event;
 import org.apereo.lai.impl.EventImpl;
 import org.apereo.openlrs.model.event.v2.ClassEventStatistics;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +57,7 @@ public class MatthewsEventProvider extends MatthewsProvider implements EventProv
   private static final String NAME = String.format("%s_NAME", BASE);
   private static final String DESC = String.format("%s_DESC", BASE);
   @Autowired private MongoTenantRepository mongoTenantRepository;
+  @Autowired private MongoEventAliasRepository mongoEventAliasRepository;
 
   @PostConstruct
   public void init() {
@@ -137,6 +143,8 @@ public class MatthewsEventProvider extends MatthewsProvider implements EventProv
     
     unicon.matthews.caliper.Event [] events = response.getBody();
     
+    List<EventAlias> eventAliases = mongoEventAliasRepository.findByTenantId(tenantId);
+    
     Function<unicon.matthews.caliper.Event, Event> myFunction = new Function<unicon.matthews.caliper.Event, Event>() {
       public Event apply(unicon.matthews.caliper.Event t) {
         EventImpl event = new EventImpl();
@@ -168,6 +176,12 @@ public class MatthewsEventProvider extends MatthewsProvider implements EventProv
         timestamp = t.getEventTime().format(dtf);
         
         verb = t.getAction();
+        for(EventAlias eventAlias: eventAliases) {
+    		if(eventAlias.getVerb().equals(verb) && eventAlias.isDisplay()) {
+    			verb = verb.substring(0, verb.lastIndexOf("#")+1) + eventAlias.getAlias();  
+    			//events.put(array[i], events.remove(verb));
+    		}        	
+        }
       
         event.setActor(actor);
         event.setContext(context);
@@ -186,9 +200,25 @@ public class MatthewsEventProvider extends MatthewsProvider implements EventProv
     };
     
     if (events != null && events.length > 0) {
+    	    	
       List<Event> eventconverted = Arrays.asList(events).stream()
           .map(myFunction)
           .collect(Collectors.<Event> toList());
+      
+      
+      for(EventAlias eventAlias: eventAliases) {    		        	
+      	//remove the ones to NOT display
+  	    	if(!eventAlias.isDisplay()) {
+  	    		Iterator<Event> mongoEventIter = eventconverted.iterator();
+  	    		while(mongoEventIter.hasNext()) {
+  	    			if(mongoEventIter.next().getVerb().equals(eventAlias.getVerb())) {
+  	    				mongoEventIter.remove();
+  	    				//break;
+  	    			}
+  	    		}	    		
+  	    	}   
+      	}
+      
       
       return new PageImpl<>(eventconverted);
     }
