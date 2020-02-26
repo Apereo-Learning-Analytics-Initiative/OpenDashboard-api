@@ -97,6 +97,9 @@ public class AuthController {
 	@CrossOrigin
 	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
 	public String login(HttpServletResponse response, HttpServletRequest request, Authentication authentication) {// ,
+
+		System.out.println("******************  Now we are inside the login auth controller");
+		
 		// @RequestParam("user") String user, @RequestParam("pass") String pass)
 
 		// get token from a Cookie		
