@@ -37,13 +37,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return (path.startsWith("/lti") || path.startsWith("/login"));
+        System.out.println("*******************Inside of Should Not Filter");
+        return (path.startsWith("/lti") || path.contains("login"));
     }
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {		
 
+		
+		System.out.println("------------------------Inside of do Filter");
+		System.out.println("########################Path: " + request.getServletPath());
+		
 		// get token from a Cookie
 		Cookie[] cookies = request.getCookies();
 		Cookie sessionCookie = null;
