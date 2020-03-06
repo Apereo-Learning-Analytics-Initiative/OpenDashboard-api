@@ -58,6 +58,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		// TODO: move the cookie validation into a private method
 		if (sessionCookie == null || StringUtils.isEmpty(sessionCookie.getValue())) {
+			String path = request.getServletPath();
+			logger.debug("Token does not exist... Request Path: " + path);
 			throw new AuthenticationServiceException("Invalid Token");
 		}
 

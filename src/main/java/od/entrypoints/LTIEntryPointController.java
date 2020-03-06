@@ -88,7 +88,9 @@ public class LTIEntryPointController {
   
   @RequestMapping(value = { "/lti", "/lti/" }, method = RequestMethod.POST)
   public RedirectView lti(HttpServletRequest request, HttpServletResponse response) throws ProviderException, ProviderDataConfigurationException {
-    LaunchRequest launchRequest = new LaunchRequest(request.getParameterMap());
+	  
+	logger.debug("Inside LTI Launch");
+    LaunchRequest launchRequest = new LaunchRequest(request.getParameterMap());    
     
     logger.debug("{}",launchRequest);
     
