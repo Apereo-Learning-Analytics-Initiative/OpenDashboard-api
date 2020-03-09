@@ -42,8 +42,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
   private static final Logger logger = LoggerFactory.getLogger(ExceptionFilter.class);
 
   @Override
-  protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain fc) throws ServletException, IOException {
-    logger.debug("In ExceptionFilter");
+  protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain fc) throws ServletException, IOException {    
     
     try {
       fc.doFilter(req, res);
@@ -58,12 +57,15 @@ public class ExceptionFilter extends OncePerRequestFilter {
     catch (MissingCookieException missingCookieException) {
       // getting a little creative with the status code here
       // want to distiguish from unauthorized
+      logger.debug("Missing Cookie Exception", missingCookieException);
       res.sendError(HttpStatus.NOT_ACCEPTABLE.value(), "COOKIE_ERROR");
     }
     catch (AuthorizationServiceException authorizationServiceException) {
+      logger.debug("AuthorizationServiceException", authorizationServiceException);
       res.sendError(HttpStatus.UNAUTHORIZED.value(), "AUTHORIZATION_ERROR");
     }
     catch(Throwable t) {
+      logger.debug("some throwable ", t);
       res.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "GENERAL_ERROR");
     }
     

@@ -63,7 +63,7 @@ public class OAuthFilter extends OncePerRequestFilter {
 		  							, FilterChain fc) throws ServletException, IOException {
     	  
 	logger.debug("In OAuthFilter");
-    logger.debug(req.getMethod());
+    logger.debug("Method Type: " + req.getMethod());
     
     // Only apply the filter to LTI tool launches (HTTP POSTS)
     // Seems like there would be a way to configure the filter to 
@@ -75,17 +75,21 @@ public class OAuthFilter extends OncePerRequestFilter {
       String consumerKey = alphaSortedMap.get(OAuthUtil.CONSUMER_KEY_PARAM);
       
       Tenant tenant = tenantRepository.findByConsumersOauthConsumerKey(consumerKey);
-      
+      logger.debug("consumerKey: " + consumerKey);
       
       
       if (tenant == null) {
+    	logger.debug("tenant was null for consumerKey: " + consumerKey);
         res.sendRedirect("/errorpage");
         return;
       }
       
+      logger.debug("TenantFound: " + tenant.toString());
+      
       Set<Consumer> consumers = tenant.getConsumers();
       
       if (consumers == null || consumers.isEmpty()) {
+    	logger.debug("OAUTH_MISSING_KEY");
         throw new MissingTenantException("OAUTH_MISSING_KEY");
       }
       
@@ -101,6 +105,10 @@ public class OAuthFilter extends OncePerRequestFilter {
         logger.error(e.getMessage(), e);
         throw new ServletException("OAUTH_CALCULATION_ERROR");
       }
+      
+      logger.debug("Signature: " + signature);
+      logger.debug("Calculated Signature: " + calculatedSignature);
+      
 
       // retry by switch prefix between https and http
       if (!signature.equals(calculatedSignature)) {
@@ -122,6 +130,9 @@ public class OAuthFilter extends OncePerRequestFilter {
 		    logger.error(e.getMessage(), e);
 		    throw new ServletException("OAUTH_CALCULATION_ERROR");
 		}
+		
+	    logger.debug("recalculatedSignature Signature: " + recalculatedSignature);
+		
         if (!signature.equals(recalculatedSignature)) {
             throw new AuthorizationServiceException("OAUTH_SIGNATURE_MISMATCH");
           }
